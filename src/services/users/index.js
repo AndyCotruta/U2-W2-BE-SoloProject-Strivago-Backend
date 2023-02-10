@@ -13,7 +13,7 @@ usersRouter.post("/register", async (req, res, next) => {
       const { _id, role } = newUser.save();
       const payload = { _id, role };
       const accessToken = await createAccessToken(payload);
-      res.redirect(`${process.env.FE_URL}?accessToken=${accessToken}`);
+      res.send(accessToken);
     } else {
       next(createHttpError(404, "An user with that email already exists"));
     }
@@ -30,7 +30,7 @@ usersRouter.post("/login", async (req, res, next) => {
     if (user) {
       const payload = { _id: user._id, role: user.role };
       const accessToken = await createAccessToken(payload);
-      res.redirect(`${process.env.FE_URL}?accessToken=${accessToken}`);
+      res.send(accessToken);
     } else {
       next(createHttpError(401, "Credentials are not ok!"));
     }
@@ -60,6 +60,18 @@ usersRouter.get("/:userId", async (req, res, next) => {
 
 usersRouter.put("/:userId", async (req, res, next) => {
   try {
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      req.params.userId,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (updatedUser) {
+      res.send(updatedUser);
+    } else {
+      next(
+        createHttpError(404, `User with id ${req.params.userId} does not exist`)
+      );
+    }
   } catch (error) {
     console.log(error);
     next(error);

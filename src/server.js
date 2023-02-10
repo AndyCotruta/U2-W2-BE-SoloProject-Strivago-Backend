@@ -10,6 +10,7 @@ import {
   forbiddenErrorHandler,
 } from "./errorHandlers.js";
 import usersRouter from "./services/users/index.js";
+import accommodationsRouter from "./services/accommodations/index.js";
 
 const server = express();
 
@@ -21,6 +22,7 @@ server.use(express.json());
 // ..................ENDPOINTS..................
 
 server.use("/users", usersRouter);
+server.use("/accommodations", accommodationsRouter);
 
 // ..................ERROR HANDLERS............
 
