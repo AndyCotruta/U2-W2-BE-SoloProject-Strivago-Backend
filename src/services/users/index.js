@@ -12,7 +12,7 @@ usersRouter.post("/register", async (req, res, next) => {
     const user = await UserModel.findOne({ email: req.body.email });
     if (!user) {
       const newUser = new UserModel(req.body);
-      const { _id, role } = newUser.save();
+      const { _id, role } = await newUser.save();
       const payload = { _id, role };
       const accessToken = await createAccessToken(payload);
       res.send(accessToken);
