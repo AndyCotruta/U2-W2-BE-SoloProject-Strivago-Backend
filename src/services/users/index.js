@@ -2,6 +2,8 @@ import express, { request } from "express";
 import createHttpError from "http-errors";
 import { createAccessToken } from "../../lib/authTools.js";
 import UserModel from "../../models/users.js";
+import AccommodationModel from "../../models/accommodations.js";
+import { JWTAuthMiddleware } from "../../lib/jwtAuth.js";
 
 const usersRouter = express.Router();
 
@@ -39,6 +41,55 @@ usersRouter.post("/login", async (req, res, next) => {
     next(error);
   }
 });
+
+usersRouter.get("/me", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const user = await UserModel.findById(req.user._id);
+    if (user) {
+      res.send(user);
+    } else {
+      next(createHttpError(404, `User with ID ${req.user._id} was not found`));
+    }
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
+
+usersRouter.get(
+  "/me/accommodations",
+  JWTAuthMiddleware,
+  async (req, res, next) => {
+    try {
+      const user = await UserModel.findById(req.user._id);
+      if (user.role === "host") {
+        const myAccommodations = await AccommodationModel.find({
+          host: user._id,
+        });
+        if (myAccommodations) {
+          res.send(myAccommodations);
+        } else {
+          next(
+            createHttpError(
+              404,
+              `No accommodations found for user ${req.user._id}`
+            )
+          );
+        }
+      } else {
+        next(
+          createHttpError(
+            403,
+            `You are not a host and cannot access this endpoint.`
+          )
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+);
 
 usersRouter.get("/", async (req, res, next) => {
   try {

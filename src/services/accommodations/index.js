@@ -27,7 +27,7 @@ accommodationsRouter.post("/", JWTAuthMiddleware, async (req, res, next) => {
 });
 accommodationsRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    const accommodations = await AccommodationModel.find();
+    const accommodations = await AccommodationModel.find().populate("host");
     res.send(accommodations);
   } catch (error) {
     console.log(error);
