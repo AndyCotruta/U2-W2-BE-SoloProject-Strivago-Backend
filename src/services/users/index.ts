@@ -1,9 +1,18 @@
 import express, { request } from "express";
 import createHttpError from "http-errors";
-import { createAccessToken } from "../../lib/authTools.js";
-import UserModel from "../../models/users.js";
-import AccommodationModel from "../../models/accommodations.js";
-import { JWTAuthMiddleware } from "../../lib/jwtAuth.js";
+import { createAccessToken } from "../../lib/tools";
+import UserModel from "../../models/users";
+import AccommodationModel from "../../models/accommodations";
+import { JWTAuthMiddleware } from "../../lib/jwtAuth";
+import { Request } from "express";
+import { TokenPayload } from "../../lib/tools";
+
+interface UserRequest extends Request {
+  user: {
+    _id: string;
+    role: string;
+  };
+}
 
 const usersRouter = express.Router();
 
@@ -42,19 +51,25 @@ usersRouter.post("/login", async (req, res, next) => {
   }
 });
 
-usersRouter.get("/me", JWTAuthMiddleware, async (req, res, next) => {
-  try {
-    const user = await UserModel.findById(req.user._id);
-    if (user) {
-      res.send(user);
-    } else {
-      next(createHttpError(404, `User with ID ${req.user._id} was not found`));
+usersRouter.get(
+  "/me",
+  JWTAuthMiddleware,
+  async (req: UserRequest, res, next) => {
+    try {
+      const user = await UserModel.findById(req.user._id);
+      if (user) {
+        res.send(user);
+      } else {
+        next(
+          createHttpError(404, `User with ID ${req.user._id} was not found`)
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      next(error);
     }
-  } catch (error) {
-    console.log(error);
-    next(error);
   }
-});
+);
 
 usersRouter.get(
   "/me/accommodations",

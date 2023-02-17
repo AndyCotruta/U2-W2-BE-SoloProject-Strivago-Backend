@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import { UserDocument, UserModel } from "../services/users/types";
 
 const { Schema, model } = mongoose;
 
@@ -47,4 +48,4 @@ UserSchema.static("checkCredentials", async function (email, password) {
   }
 });
 
-export default model("User", UserSchema);
+export default model<UserDocument, UserModel>("User", UserSchema);

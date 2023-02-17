@@ -32,7 +32,7 @@ server.use(forbiddenErrorHandler); //403
 server.use(notFoundHandler); // 404
 server.use(genericErrorHandler); // 500
 
-mongoose.connect(process.env.MONGODB_URL);
+mongoose.connect(process.env.MONGODB_URL!);
 
 mongoose.connection.on("connected", () => {
   console.log("Connected to Mongo!");
