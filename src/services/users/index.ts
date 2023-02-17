@@ -1,4 +1,4 @@
-import express, { request } from "express";
+import express from "express";
 import createHttpError from "http-errors";
 import { createAccessToken } from "../../lib/tools";
 import UserModel from "../../models/users";
@@ -8,9 +8,9 @@ import { Request } from "express";
 import { TokenPayload } from "../../lib/tools";
 
 interface UserRequest extends Request {
-  user: {
+  user?: {
     _id: string;
-    role: string;
+    role: "guest" | "host";
   };
 }
 
@@ -56,12 +56,12 @@ usersRouter.get(
   JWTAuthMiddleware,
   async (req: UserRequest, res, next) => {
     try {
-      const user = await UserModel.findById(req.user._id);
+      const user = await UserModel.findById(req.user!._id);
       if (user) {
         res.send(user);
       } else {
         next(
-          createHttpError(404, `User with ID ${req.user._id} was not found`)
+          createHttpError(404, `User with ID ${req.user!._id} was not found`)
         );
       }
     } catch (error) {
@@ -74,12 +74,12 @@ usersRouter.get(
 usersRouter.get(
   "/me/accommodations",
   JWTAuthMiddleware,
-  async (req, res, next) => {
+  async (req: UserRequest, res, next) => {
     try {
-      const user = await UserModel.findById(req.user._id);
-      if (user.role === "host") {
+      const user = await UserModel.findById(req.user!._id);
+      if (user!.role === "host") {
         const myAccommodations = await AccommodationModel.find({
-          host: user._id,
+          host: user!._id,
         });
         if (myAccommodations) {
           res.send(myAccommodations);
@@ -87,7 +87,7 @@ usersRouter.get(
           next(
             createHttpError(
               404,
-              `No accommodations found for user ${req.user._id}`
+              `No accommodations found for user ${req.user!._id}`
             )
           );
         }

@@ -8,9 +8,9 @@ import {
   badRequestHandler,
   unauthorizedHandler,
   forbiddenErrorHandler,
-} from "./errorHandlers.js";
-import usersRouter from "./services/users/index.js";
-import accommodationsRouter from "./services/accommodations/index.js";
+} from "./errorHandlers";
+import usersRouter from "./services/users/index";
+import accommodationsRouter from "./services/accommodations/index";
 
 const server = express();
 
